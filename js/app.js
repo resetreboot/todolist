@@ -87,10 +87,10 @@ function addItemToListClicked(list_ID, txt) {
 }
 
 function addNewListClicked(newListName) {
-  db.lists.add({name: newListName}).then(function(list) {
-    $('li#add_list_last_elem').before('<li><a id="list_' + list.id + '">' + newListName + '</li>');
-    $('a#list_' + list.id).data('listID', list.id);
-    $('a#list_' + list.id).click(function () { openList($(this)); });
+  db.lists.add({name: newListName}).then(function(listID) {
+    $('li#add_list_last_elem').before('<li><a id="list_' + listID + '">' + newListName + '</li>');
+    $('a#list_' + listID).data('listID', listID);
+    $('a#list_' + listID).click(function () { openList($(this)); });
     $.afui.goBack();
   });
 }
