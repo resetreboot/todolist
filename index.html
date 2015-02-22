@@ -27,16 +27,16 @@
     <body>
         <div id="afui">
             <div class="view" id="mainview">
-               <header>
+                <header>
                    <h1 data-l10n-id="app_title">ToDo List</h1>
                </header>
                <div class="pages">
-                   <div data-title="ToDo Lists" id="main" class="panel" selected="true">
+                   <div id="main" class="panel" selected="true">
                        <ul id="list_of_lists" class="list">
                            <li id="add_list_last_elem"><a id="add_list" data-l10n-id="add_list"><span class="icon add"></span> Add List</a></li>
                        </ul>
                    </div>
-                   <div data-title="New list" id="new_list" class="panel" selected="false">
+                   <div id="new_list" class="panel" selected="false">
                        <div class="formGroupHead" data-l10n-id="create_list">Create list</div>
                        <form>
                            <label for="new_list_name_input" data-l10n-id="new_list_name">Name:</label>
@@ -44,7 +44,8 @@
                            <a id="add_new_list_button" class="button icon add" data-l10n-id="add_new_list">Add new list</a>
                        </form>
                    </div>
-                   <div data-title="Untitled" id="list_panel" class="panel" selected="false">
+                   <div data-footer="none" id="list_panel" class="panel" selected="false">
+                       <h2 id="list_title"></h2>
                        <ul id="list_display" class="list">
                            <input id="new_elem_text" type="text" />
                            <a id="add_new_item" class="button icon add" data-l10n-id="add_new_item">Add new item</a>
@@ -52,13 +53,21 @@
                            <a id="delete_list" class="button icon remove red" data-l10n-id="delete_list">Delete list</a>
                        </ul>
                    </div>
-                   <!-- <div data-title="Settings" id="settings" class="panel" selected="false">
-                       <p>Coming soon...</p>
+                   <div id="settings" class="panel" selected="false">
+                       <h2 data-l10n-id="data_settings">Data settings</h2>
+                       <hr />
+                       <a id="reset_app" class="button red" data-l10n-id="reset_app">Reset app</a>
+                       <p data-l10n-id="reset_warning">Warning: It will remove all data.</p>
                    </div>
-                   <div data-title="About" id="about" class="panel" selected="false">
-                       <p>Coming soon...</p>
-                   </div> -->
+                   <div id="about" class="panel" selected="false">
+                      <p>Coming soon...</p>
+                   </div>
                </div>
+               <footer>
+                   <a href="#main" class="icon stack" data-l10n-id="home_list_menu">Lists</a>
+                   <a href="#settings" class="icon settings" data-l10n-id="settings_menu">Settings</a>
+                   <a href="#about" class="icon info" data-l10n-id="about_menu">Lists</a>
+               </footer>
             </div>
         </div>
     </body>

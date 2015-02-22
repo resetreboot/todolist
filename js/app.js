@@ -6,6 +6,7 @@
 function openList(elementClicked) {
   var listID = elementClicked.data('listID');
   var listTitle = getListTitle(listID);
+  $('#list_title').text(listTitle);
   $('ul#list_display').find('li').remove();
   
   var numElements = getListItemCount(listID);
@@ -34,7 +35,6 @@ function openList(elementClicked) {
   $('#add_new_item').data('currentlist', listID);
   $('#delete_list').data('currentlist', listID);
   $.afui.loadContent('#list_panel', false, false, "slide");
-  $.afui.setTitle(listTitle);
 }
 
 function itemClicked(elementClicked) {
@@ -119,10 +119,13 @@ window.addEventListener('DOMContentLoaded', function() {
     // https://developer.mozilla.org/Web/API/Element.innerHTML#Security_considerations
     // message.textContent = translate('message');
     
+    $('#main').data('title', translate('main_list'));
+    
     loadLists();
     
     $('#add_list').click(function(){
       $.afui.loadContent('#new_list', false, false, "slide");
+      // $.afui.setTitle(translate('new_list'));
     });
 
     $('#add_new_list_button').click(function(){
