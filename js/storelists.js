@@ -10,11 +10,12 @@ function getListTitle(listID) {
 }
 
 function getListItemCount(listID) {
-  return localStorage.getItem(PREFIX + listID + '_element_count');
+  return parseInt(localStorage.getItem(PREFIX + listID + '_element_count'));
 }
 
 function getAllLists() {
-  var maxLists = localStorage.getItem('ToDoList_LastID');
+  var maxLists = parseInt(localStorage.getItem('ToDoList_LastID'));
+  console.log('LastID: ' + maxLists);
   var allLists = [];
   
   for(var count = 0; count < maxLists; count++) {
@@ -47,30 +48,37 @@ function itemExists(listID, itemID) {
 // INSERTs and SETs
 function createList(text) {
   var lastID = 0;
-  if(localStorage.getItem('ToDoList_LastID')) {
-    lastID = localStorage.getItem('ToDoList_LastID');
+  if(localStorage.getItem(PREFIX + 'LastID')) {
+    lastID = parseInt(localStorage.getItem(PREFIX + 'LastID'));
+  } else {
+    localStorage.setItem(PREFIX + 'LastID', 0);
   }
   
   var finalID = 0;
-  if(lastID !== 0) {
+  if(lastID != 0) {
     var count = 0;
-    while((localStorage.getItem('ToDoList_list' + count)) && (count < lastID)) {
+    while((localStorage.getItem(PREFIX + 'list' + count)) && (count < lastID)) {
       count++;      
     }
     
     if(count < lastID) {
-      finalID = lastID;
+      finalID = count;
     } else {
       finalID = lastID;
       lastID++;
+      localStorage.setItem(PREFIX + 'LastID', lastID);
     }
+  } else {
+    finalID = 0;
+    lastID = 1;
+    localStorage.setItem(PREFIX + 'LastID', lastID);
   }
   
-  localStorage.setItem('ToDoList_list' + finalID, newListName);
-  localStorage.setItem('ToDoList_LastID', lastID);
+  localStorage.setItem(PREFIX + 'list' + finalID, text);
   
   return finalID;
 }
+
 function insertItem(listID, text) {
   var numElements = getListItemCount(listID);
   var elementPosition = 0;
@@ -93,7 +101,54 @@ function insertItem(listID, text) {
   }
   
   localStorage.setItem(PREFIX + listID + '_element_' + elementPosition, text);
-  localStorage.setItem(PREFIX + listID + '_element_' + count + '_checked', 'false');
+  localStorage.setItem(PREFIX + listID + '_element_' + elementPosition + '_checked', 'false');
   
   localStorage.setItem(PREFIX + listID + '_element_count', numElements);
+  
+  return elementPosition;
+}
+
+function checkItem(listID, itemID) {
+  if(itemExists(listID, itemID)) {
+    localStorage.setItem(PREFIX + listID + '_element_' + itemID + '_checked', 'true'); 
+  }
+}
+
+function uncheckItem(listID, itemID) {
+  if(itemExists(listID, itemID)) {
+    localStorage.setItem(PREFIX + listID + '_element_' + itemID + '_checked', 'false'); 
+  }
+}
+
+// Delete functions
+function deleteItem(listID, itemID) {
+  var maxElementID = getListItemCount(listID);
+  
+  if(itemExists(listID, itemID)) {
+    localStorage.removeItem(PREFIX + listID + '_element_' + itemID);
+    localStorage.removeItem(PREFIX + listID + '_element_' + itemID + '_checked');
+    
+    if(itemID == (maxElementID - 1)) {
+      localStorage.setItem(PREFIX + listID + '_element_count', itemID);
+    }
+  }
+}
+
+function deleteList(listID) {
+  var maxItemID = getListItemCount(listID);
+  
+  for(var count = 0; count < maxItemID; count++) {
+    deleteItem(listID, count);
+  }
+  
+  localStorage.removeItem(PREFIX + listID + '_element_count');
+  localStorage.removeItem(PREFIX + 'list' + listID);
+  
+  if (listID == (localStorage.getItem(PREFIX + 'LastID') - 1)) {
+    localStorage.setItem(PREFIX + 'LastID', listID);
+  }
+  
+  if (listID == 0) {
+    localStorage.removeItem(PREFIX + 'LastID');
+  }
 }

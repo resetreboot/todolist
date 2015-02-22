@@ -11,44 +11,83 @@ function openList(elementClicked) {
   var numElements = getListItemCount(listID);
   if((numElements) && (numElements > 0)) {
      var text;
+     var identification;
      for(var count = 0; count < numElements; count++) {
        text = getItemText(listID, count);
+       identification = listID + '_' + count;
        if(text) {
          var list_display = $('#new_elem_text');
          if (isItemChecked(listID, count)) {
-           list_display.before('<li id="element_' + listID + '_' + count +'"><span class="icon check"></span>' + text + '</li>');
+           list_display.before('<li id="element_' + identification +'"><span id="check_' + identification + '" class="icon check"></span>' + text + '</li>');
          } else {
-           list_display.before('<li id="element_' + listID + '_' + count +'"><span class="icon minimize"></span>' + text + '</li>');
+           list_display.before('<li id="element_' + identification +'"><span id="check_' + identification + '" class="icon minimize"></span>' + text + '</li>');
          }
+         $('#check_' + identification).data('listID', listID);
+         $('#check_' + identification).data('itemID', count);
+         $('#check_' + identification).click(function () {
+           itemClicked($(this));
+         });
        }
      }  
   }
   
   $('#add_new_item').data('currentlist', listID);
+  $('#delete_list').data('currentlist', listID);
   $.afui.loadContent('#list_panel', false, false, "slide");
   $.afui.setTitle(listTitle);
 }
 
+function itemClicked(elementClicked) {
+  var listID = elementClicked.data('listID');
+  var itemID = elementClicked.data('itemID');
+  
+  var identification = listID + '_' + itemID;
+  if(!isItemChecked(listID, itemID)) {
+    checkItem(listID, itemID);
+    $('#check_' + identification).removeClass('minimize');
+    $('#check_' + identification).addClass('check');
+  } else {
+    uncheckItem(listID, itemID);
+    $('#check_' + identification).removeClass('check');
+    $('#check_' + identification).addClass('minimize');
+  }
+}
+
 function addItemToListClicked(listID, text) {
-  insertItem(listID, text);
+  var itemID = insertItem(listID, text);
   
   var list_display = $('#new_elem_text');
-  list_display.before('<li id="element_' + listID + '_' + count +'"><span class="icon minimize"></span>' + text + '</li>');
+  var identification = listID + '_' + itemID;
+  list_display.before('<li id="element_' + identification +'"><span id="check_' + identification + '" class="icon minimize"></span>' + text + '</li>');
+  $('#check_' + identification).data('listID', listID);
+  $('#check_' + identification).data('itemID', itemID);
+  $('#check_' + identification).click(function () {
+    itemClicked($(this));
+  });
 }
 
 function addNewListClicked(newListName) {
   var listID = createList(newListName);
     
   $('li#add_list_last_elem').before('<li><a id="list_' + listID + '">' + newListName + '</li>');
-  $('a#list_' + listID).click(function () { openList('a#list_' + listID); });
-  $('a#list_' + count).data('listID', listID);
+  $('a#list_' + listID).data('listID', listID);
+  $('a#list_' + listID).click(function () { openList($(this)); });
 }
+
+function deleteListClicked(listID) {
+  deleteList(listID);
+  
+  $('a#list_' + listID).parent().remove();
+  $('a#list_' + listID).remove();
+  $.afui.goBack();
+} 
 
 // Loads the lists in the Store element
 function loadLists() {
   console.log('Recovering data');
   
   var listData = getAllLists();
+  console.log("Lists: " + listData.length);
     
   listData.forEach(function(list, count) {
     console.log('Adding list item ' + count);
@@ -106,6 +145,13 @@ window.addEventListener('DOMContentLoaded', function() {
         addItemToListClicked(listID, text);
       }
       
+      $('#new_elem_text').val('');
+      
+    });
+    
+    $('#delete_list').click(function() {
+      var listID = $('#delete_list').data('currentlist');
+      deleteListClicked(listID);
     });
   }
 });
