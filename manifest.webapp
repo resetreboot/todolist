@@ -1,7 +1,7 @@
 {
   "version": "0.1.0",
   "name": "ToDo List",
-  "description": "A template with the bare minimum structure",
+  "description": "A simple ToDo List",
   "launch_path": "/index.html",
   "icons": {
     "16": "/img/icons/icon16x16.png",
@@ -14,7 +14,11 @@
     "url": "https://github.com/resetreboot"
   },
   "type": "privileged",
-    "permissions": {"storage": true},
+    "permissions": {
+      "storage": { 
+        "description": "Required to store the todo lists data"
+      }
+    },
   "installs_allowed_from": [
     "*"
   ],
@@ -28,7 +32,11 @@
     "es": {
       "name": "Lista de Tareas",
       "description": "Una sencilla lista de tareas",
-        "permissions": {"storage": true}
+        "permissions": {
+          "storage":{ 
+           "description": "Se necesita para almacenar las listas de tareas" 
+          }
+        }
     }
   },
   "default_locale": "en"

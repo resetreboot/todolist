@@ -3,38 +3,53 @@
 // That makes the app more responsive and perceived as faster.
 // https://developer.mozilla.org/Web/Reference/Events/DOMContentLoaded
 
+// Dexie to the rescue
+var db = new Dexie("ToDoList");
+  
+db.version(1).stores({
+ lists: "++id",
+ items: "++id"
+});
+
+db.version(2).stores({
+ lists: "++id",
+ items: "++id,listID"
+});
+
+
+db.open();
+
 function openList(elementClicked) {
   var listID = elementClicked.data('listID');
-  var listTitle = getListTitle(listID);
-  $('#list_title').text(listTitle);
-  $('ul#list_display').find('li').remove();
   
-  var numElements = getListItemCount(listID);
-  if((numElements) && (numElements > 0)) {
-     var text;
+  db.lists.get(listID).then(function(list) {
+    var listTitle = list.name;
+    $('#list_title').text(listTitle);
+    $('ul#list_display').find('li').remove();
+  
+    db.items.where('listID').equals(listID).each(function(item) {
+     console.log(item);
+     var text = item.text;
      var identification;
-     for(var count = 0; count < numElements; count++) {
-       text = getItemText(listID, count);
-       identification = listID + '_' + count;
-       if(text) {
-         var list_display = $('#new_elem_text');
-         if (isItemChecked(listID, count)) {
-           list_display.before('<li id="element_' + identification +'"><span id="check_' + identification + '" class="icon check"></span>' + text + '</li>');
-         } else {
-           list_display.before('<li id="element_' + identification +'"><span id="check_' + identification + '" class="icon minimize"></span>' + text + '</li>');
-         }
-         $('#check_' + identification).data('listID', listID);
-         $('#check_' + identification).data('itemID', count);
-         $('#check_' + identification).click(function () {
-           itemClicked($(this));
-         });
-       }
-     }  
-  }
-  
-  $('#add_new_item').data('currentlist', listID);
-  $('#delete_list').data('currentlist', listID);
-  $.afui.loadContent('#list_panel', false, false, "slide");
+      
+     identification = listID + '_' + item.id;
+     var list_display = $('#new_elem_text');
+     if (item.checked) {
+       list_display.before('<li id="element_' + identification +'"><span id="check_' + identification + '" class="icon check"></span>' + text + '</li>');
+     } else {
+       list_display.before('<li id="element_' + identification +'"><span id="check_' + identification + '" class="icon minimize"></span>' + text + '</li>');
+     }
+     $('#check_' + identification).data('listID', listID);
+     $('#check_' + identification).data('itemID', item.id);
+     $('#check_' + identification).click(function () {
+      itemClicked($(this));
+     });
+    });
+    
+    $('#add_new_item').data('currentlist', listID);
+    $('#delete_list').data('currentlist', listID);
+    $.afui.loadContent('#list_panel', false, false, "slide"); 
+  }).catch(function(err) { console.error(err); });
 }
 
 function itemClicked(elementClicked) {
@@ -42,40 +57,50 @@ function itemClicked(elementClicked) {
   var itemID = elementClicked.data('itemID');
   
   var identification = listID + '_' + itemID;
-  if(!isItemChecked(listID, itemID)) {
-    checkItem(listID, itemID);
-    $('#check_' + identification).removeClass('minimize');
-    $('#check_' + identification).addClass('check');
-  } else {
-    uncheckItem(listID, itemID);
-    $('#check_' + identification).removeClass('check');
-    $('#check_' + identification).addClass('minimize');
-  }
+  db.items.get(itemID).then(function(item) {
+    if(!item.checked) {
+      db.items.update(item.id, {checked: true});
+      $('#check_' + identification).removeClass('minimize');
+      $('#check_' + identification).addClass('check');
+    } else {
+      db.items.update(item.id, {checked: false});
+      $('#check_' + identification).removeClass('check');
+      $('#check_' + identification).addClass('minimize');
+    }
+  });
 }
 
-function addItemToListClicked(listID, text) {
-  var itemID = insertItem(listID, text);
-  
-  var list_display = $('#new_elem_text');
-  var identification = listID + '_' + itemID;
-  list_display.before('<li id="element_' + identification +'"><span id="check_' + identification + '" class="icon minimize"></span>' + text + '</li>');
-  $('#check_' + identification).data('listID', listID);
-  $('#check_' + identification).data('itemID', itemID);
-  $('#check_' + identification).click(function () {
-    itemClicked($(this));
+function addItemToListClicked(list_ID, txt) {
+  console.log('listID ' + list_ID);
+  db.items.add({text: txt, listID: list_ID, checked: false}).then(function(itemID) {
+    console.log('Adding new item ' + itemID);
+    var list_display = $('#new_elem_text');
+    var identification = list_ID + '_' + itemID;
+    console.log(identification);
+    list_display.before('<li id="element_' + identification +'"><span id="check_' + identification + '" class="icon minimize"></span>' + txt + '</li>');
+    $('#check_' + identification).data('listID', list_ID);
+    $('#check_' + identification).data('itemID', itemID);
+    $('#check_' + identification).click(function () {
+      itemClicked($(this));
+    });
   });
 }
 
 function addNewListClicked(newListName) {
-  var listID = createList(newListName);
-    
-  $('li#add_list_last_elem').before('<li><a id="list_' + listID + '">' + newListName + '</li>');
-  $('a#list_' + listID).data('listID', listID);
-  $('a#list_' + listID).click(function () { openList($(this)); });
+  db.lists.add({name: newListName}).then(function(list) {
+    $('li#add_list_last_elem').before('<li><a id="list_' + list.id + '">' + newListName + '</li>');
+    $('a#list_' + list.id).data('listID', list.id);
+    $('a#list_' + list.id).click(function () { openList($(this)); });
+    $.afui.goBack();
+  });
 }
 
 function deleteListClicked(listID) {
-  deleteList(listID);
+  db.lists.delete(listID);
+  
+  db.items.where('listID').equals(listID).each(function(item) {
+    db.items.delete(item.id);
+  });
   
   $('a#list_' + listID).parent().remove();
   $('a#list_' + listID).remove();
@@ -86,14 +111,10 @@ function deleteListClicked(listID) {
 function loadLists() {
   console.log('Recovering data');
   
-  var listData = getAllLists();
-  console.log("Lists: " + listData.length);
-    
-  listData.forEach(function(list, count) {
-    console.log('Adding list item ' + count);
-    $('li#add_list_last_elem').before('<li><a id="list_' + list.listID + '">' + list.title + '</li>');
-    $('a#list_' + list.listID).click(function () { openList($(this)); });
-    $('a#list_' + list.listID).data('listID', list.listID);
+  db.lists.each(function(list) {
+    $('li#add_list_last_elem').before('<li><a id="list_' + list.id + '">' + list.name + '</li>');
+    $('a#list_' + list.id).click(function () { openList($(this)); });
+    $('a#list_' + list.id).data('listID', list.id);
   });
 }
 
@@ -118,8 +139,6 @@ window.addEventListener('DOMContentLoaded', function() {
     // We're using textContent because inserting content from external sources into your page using innerHTML can be dangerous.
     // https://developer.mozilla.org/Web/API/Element.innerHTML#Security_considerations
     // message.textContent = translate('message');
-    
-    $('#main').data('title', translate('main_list'));
     
     loadLists();
     
