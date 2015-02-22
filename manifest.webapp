@@ -1,0 +1,35 @@
+{
+  "version": "0.1.0",
+  "name": "ToDo List",
+  "description": "A template with the bare minimum structure",
+  "launch_path": "/index.html",
+  "icons": {
+    "16": "/img/icons/icon16x16.png",
+    "48": "/img/icons/icon48x48.png",
+    "60": "/img/icons/icon60x60.png",
+    "128": "/img/icons/icon128x128.png"
+  },
+  "developer": {
+    "name": "José Carlos Cuevas",
+    "url": "https://github.com/resetreboot"
+  },
+  "type": "privileged",
+    "permissions": {"storage": true},
+  "installs_allowed_from": [
+    "*"
+  ],
+  "datastores-owned": {
+  "ToDoList": {
+    "access": "readwrite",
+    "description": "ToDo List Datastore"
+    }
+  },
+  "locales": {
+    "es": {
+      "name": "Lista de Tareas",
+      "description": "Una sencilla lista de tareas",
+        "permissions": {"storage": true}
+    }
+  },
+  "default_locale": "en"
+}
