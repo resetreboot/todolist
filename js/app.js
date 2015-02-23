@@ -91,7 +91,7 @@ function addNewListClicked(newListName) {
     $('li#add_list_last_elem').before('<li><a id="list_' + listID + '">' + newListName + '</li>');
     $('a#list_' + listID).data('listID', listID);
     $('a#list_' + listID).click(function () { openList($(this)); });
-    $.afui.goBack();
+    // $.afui.goBack();
   });
 }
 
