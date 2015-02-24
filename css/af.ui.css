@@ -2307,7 +2307,9 @@ input[type="checkbox"]:checked + label:before {
   color: #000;
 }
 .firefox .view header {
-  background: #00a900;
+  /* background: #00a900; */
+  background: -moz-linear-gradient(top, #bfd255 0%, #8eb92a 50%, #72aa00 51%, #9ecb2d 100%);
+
   color: #ffffff;
   border-color: transparent;
   height: 44px;
