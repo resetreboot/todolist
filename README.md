@@ -12,3 +12,8 @@ separate.
 
 Right now, we only support english and spanish. But we're open to other languages, feel free to 
 translate.
+
+## Free as in freedom
+
+This program has been licensed under the GPLv3 license. No spying you, no hidden costs, all freedom
+to study, improve and share.
