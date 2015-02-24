@@ -175,5 +175,20 @@ window.addEventListener('DOMContentLoaded', function() {
       var listID = $('#delete_list').data('currentlist');
       deleteListClicked(listID);
     });
+    
+    $('#reset_app').click(function() {
+      $.afui.popup({
+        title: translate('warning_popup_title'),
+        message: translate('warning_popup_message'),
+        cancelText: translate('warning_popup_cancel'),
+        doneText: translate('warning_popup_done'),
+        doneCallback: function() {
+          $('ul#list_of_lists').find('[id^=list_]').parent().remove();
+          db.lists.clear();
+          db.items.clear();
+        },
+        cancelOnly: false
+      });
+    });
   }
 });
